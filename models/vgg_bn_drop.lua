@@ -27,16 +27,17 @@ ConvBNReLU(128,128):add(nn.Dropout(0.4))
 ConvBNReLU(128,128)
 vgg:add(MaxPooling(2,2,2,2):ceil())
 
---print(#vgg:cuda():forward(torch.CudaTensor(16,3,78,60)))
-vgg:add(nn.View(512))
+print(#vgg:cuda():forward(torch.CudaTensor(16,3,78,60)))
+vgg:add(nn.View(10240))
 
 classifier = nn.Sequential()
 classifier:add(nn.Dropout(0.5))
-classifier:add(nn.Linear(512,512))
+classifier:add(nn.Linear(10240,512))
 classifier:add(nn.BatchNormalization(512))
 classifier:add(nn.ReLU(true))
 classifier:add(nn.Dropout(0.5))
 classifier:add(nn.Linear(512,1))
+classifier:add(nn.ReLU(true))
 vgg:add(classifier)
 
 -- initialization from MSR

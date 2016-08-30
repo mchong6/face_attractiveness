@@ -26,7 +26,7 @@ function Provider:__init(full)
 	end
 
     for i = 451, 500 do
-		if subset_train == nil then
+		if subset_test == nil then
 			subset_test = torch.reshape(image.scale(image.load('./Data/SCUT-FBP-'.. i ..'.jpg',3,'byte'), 60, 78) , 1, 3,78,60)	
 		else
 			subset_test = torch.cat(subset_test, torch.reshape(image.scale(image.load('./Data/SCUT-FBP-'.. i ..'.jpg',3,'byte'), 60, 78), 1, 3,78,60), 1)

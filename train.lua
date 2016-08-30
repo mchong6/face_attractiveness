@@ -6,7 +6,7 @@ local c = require 'trepl.colorize'
 
 opt = lapp[[
    -s,--save                  (default "logs")      subdirectory to save logs
-   -b,--batchSize             (default 128)          batch size
+   -b,--batchSize             (default 50)          batch size
    -r,--learningRate          (default 1)        learning rate
    --learningRateDecay        (default 1e-7)      learning rate decay
    --weightDecay              (default 0.0005)      weightDecay
@@ -160,7 +160,6 @@ function test()
   model:evaluate()
   print(c.blue '==>'.." testing")
   local bs = 10
-  local counter = 1
   for i=1,provider.testData.data:size(1),bs do
     local outputs = model:forward(provider.testData.data:narrow(1,i,bs))
     if outs_score == nil then
@@ -197,7 +196,7 @@ end
 
 for i=1,opt.max_epoch do
   train()
-  if i % 20 == 0 then
+  if i % 2 == 0 then
   	test()
   end
 end
