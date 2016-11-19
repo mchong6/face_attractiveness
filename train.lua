@@ -4,10 +4,12 @@ require 'nn'
 dofile './provider.lua'
 local c = require 'trepl.colorize'
 
+torch.manualSeed(397)
+
 opt = lapp[[
    -s,--save                  (default "logs")      subdirectory to save logs
    -b,--batchSize             (default 50)          batch size
-   -r,--learningRate          (default 1)        learning rate
+   -r,--learningRate          (default 1e-2)        learning rate
    --learningRateDecay        (default 1e-7)      learning rate decay
    --weightDecay              (default 0.0005)      weightDecay
    -m,--momentum              (default 0.9)         momentum
@@ -74,10 +76,10 @@ provider = torch.load 'provider.t7'
 
 --change range to [0,1]
 provider.trainData.data = provider.trainData.data:float() 
-provider.trainData.labels = provider.trainData.labels:float()
+provider.trainData.labels = provider.trainData.labels:float() * 20
 
 provider.testData.data = provider.testData.data:float() 
-provider.testData.labels = provider.testData.labels:float() 
+provider.testData.labels = provider.testData.labels:float() * 20
 
 --confusion = optim.ConfusionMatrix(10)
 
@@ -131,6 +133,7 @@ function train()
       gradParameters:zero()
       
       local outputs = model:forward(inputs)
+      --print(outputs[{{1,10}}])
       local f = criterion:forward(outputs, targets)
 	  error = error + f
       local df_do = criterion:backward(outputs, targets)
@@ -159,9 +162,12 @@ function test()
   -- disable flips, dropouts and batch normalization
   model:evaluate()
   print(c.blue '==>'.." testing")
+  --image.save("test1.png", provider.testData.data[1])
+  --image.save("test2.png", provider.testData.data[2])
   local bs = 10
   for i=1,provider.testData.data:size(1),bs do
     local outputs = model:forward(provider.testData.data:narrow(1,i,bs))
+   -- print(outputs)
     if outs_score == nil then
         outs_score = outputs:clone()
     else
@@ -180,12 +186,13 @@ function test()
          end
       end
       csvigo.save{path = "output_score.csv", data = t}
+      outs_score = nil
   end
 
   
 
   -- save model every 50 epochs
-  if epoch % 50 == 0 then
+  if epoch % 100 == 0 then
     local filename = paths.concat(opt.save, 'model.net')
     print('==> saving model to '..filename)
     torch.save(filename, model:get(3):clearState())
@@ -196,7 +203,7 @@ end
 
 for i=1,opt.max_epoch do
   train()
-  if i % 2 == 0 then
+  if i % 20 == 0 then
   	test()
   end
 end

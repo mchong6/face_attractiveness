@@ -49,7 +49,7 @@ function Provider:__init(full)
   trainData.labels = train_Y
 
   self.testData = {
-     data = subset_test:double() / 25,
+     data = subset_test:double() / 255,
      labels =test_Y:double(),
      size = function() return tesize end
   }
